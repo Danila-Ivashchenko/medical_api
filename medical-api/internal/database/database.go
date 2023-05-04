@@ -8,10 +8,10 @@ import (
 )
 
 const (
-	db_host = "localhost:3306"
+	db_host = "localhost:3036"
 	db_name = "medical_db"
 	db_user = "root"
-	db_pass = "qwerqwer"
+	db_pass = "qwer"
 )
 
 func Get_db() *sql.DB {

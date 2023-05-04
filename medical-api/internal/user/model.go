@@ -22,3 +22,7 @@ type PresentedUserData struct {
 	Id int64 `json:"id"`
 	MainUserData
 }
+
+func (m *PresentedUserData) ToString() string {
+	return fmt.Sprintf("'%d','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'", m.Id, m.Name, m.Surname, m.Patronymic, m.Polis, m.Phone, m.Email, m.City, m.Address, m.Birthday)
+}
