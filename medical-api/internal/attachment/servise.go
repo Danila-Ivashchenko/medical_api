@@ -22,9 +22,10 @@ func presentedAttachmentDataFromRow(row rowScaner) (*PresentedAttachmentData, er
 }
 
 type Service interface {
-	AddAttachment(data MainAttachmentData) (int, error)
-	GetAttachmentById(id int) (*PresentedAttachmentData, error)
+	AddAttachment(data MainAttachmentData) (int64, error)
+	GetAttachmentById(id int64) (*PresentedAttachmentData, error)
 	GetAllAttachments(whreCase string, limitOfset ...int) (*[]PresentedAttachmentData, error)
+	GetUserAttachment(id int64) (*PresentedAttachmentData, error)
 }
 
 type service struct{}
@@ -35,7 +36,7 @@ func (s *service) CheckAttachmentExist(data MainAttachmentData) bool {
 	return len(*result) != 0
 }
 
-func (s *service) AddAttachment(data MainAttachmentData) (int, error) {
+func (s *service) AddAttachment(data MainAttachmentData) (int64, error) {
 	db := database.Get_db()
 	defer db.Close()
 	if s.CheckAttachmentExist(data) {
@@ -51,10 +52,10 @@ func (s *service) AddAttachment(data MainAttachmentData) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return int(id), nil
+	return id, nil
 }
 
-func (*service) GetAttachmentById(id int) (*PresentedAttachmentData, error) {
+func (*service) GetAttachmentById(id int64) (*PresentedAttachmentData, error) {
 	db := database.Get_db()
 	defer db.Close()
 
@@ -93,6 +94,15 @@ func (*service) GetAllAttachments(whreCase string, limitOfset ...int) (*[]Presen
 		AttachmentsData = append(AttachmentsData, *AttachmentData)
 	}
 	return &AttachmentsData, nil
+}
+
+func (s *service) GetUserAttachment(id int64) (*PresentedAttachmentData, error) {
+	whereCase := fmt.Sprintf("user_id = %d", id)
+	result, err := s.GetAllAttachments(whereCase, 1)
+	if err != nil {
+		return nil, err
+	}
+	return &(*result)[0], nil
 }
 
 func GetServise() Service {

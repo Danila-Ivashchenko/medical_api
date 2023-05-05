@@ -22,10 +22,10 @@ func presentedDiseasesDataFromRow(row rowScaner) (*PresentedDiseasesData, error)
 }
 
 type Service interface {
-	AddDiseases(data MainDiseasesData) (int, error)
-	GetDiseasesById(id int) (*PresentedDiseasesData, error)
+	AddDiseases(data MainDiseasesData) (int64, error)
+	GetDiseasesById(id int64) (*PresentedDiseasesData, error)
 	GetAllDiseasess(whreCase string, limitOfset ...int) (*[]PresentedDiseasesData, error)
-	ChangeStatusById(id int) (*PresentedDiseasesData, error)
+	ChangeStatusById(id int64) (*PresentedDiseasesData, error)
 }
 
 type service struct{}
@@ -36,7 +36,7 @@ func (s *service) CheckDiseasesExist(data MainDiseasesData) bool {
 	return len(*result) != 0
 }
 
-func (s *service) AddDiseases(data MainDiseasesData) (int, error) {
+func (s *service) AddDiseases(data MainDiseasesData) (int64, error) {
 	db := database.Get_db()
 	defer db.Close()
 	if s.CheckDiseasesExist(data) {
@@ -52,10 +52,10 @@ func (s *service) AddDiseases(data MainDiseasesData) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return int(id), nil
+	return id, nil
 }
 
-func (*service) GetDiseasesById(id int) (*PresentedDiseasesData, error) {
+func (*service) GetDiseasesById(id int64) (*PresentedDiseasesData, error) {
 	db := database.Get_db()
 	defer db.Close()
 
@@ -72,6 +72,7 @@ func (*service) GetAllDiseasess(whreCase string, limitOfset ...int) (*[]Presente
 	if whreCase != "" {
 		stmt += " WHERE " + whreCase
 	}
+
 	if len(limitOfset) >= 1 {
 		stmt += fmt.Sprintf(" LIMIT %d", limitOfset[0])
 	}
@@ -96,7 +97,7 @@ func (*service) GetAllDiseasess(whreCase string, limitOfset ...int) (*[]Presente
 	return &DiseasessData, nil
 }
 
-func (s *service) ChangeStatusById(id int) (*PresentedDiseasesData, error) {
+func (s *service) ChangeStatusById(id int64) (*PresentedDiseasesData, error) {
 	_, err := s.GetDiseasesById(id)
 	if err != nil {
 		return nil, err

@@ -22,14 +22,15 @@ func presentedUserDataFromRow(row rowScaner) (*PresentedUserData, error) {
 }
 
 type Service interface {
-	AddUserByID(data MainUserData) (int, error)
-	GetUserById(id int) (*PresentedUserData, error)
+	AddUser(data MainUserData) (int64, error)
+	GetUserById(id int64) (*PresentedUserData, error)
 	GetAllUsers(whreCase string, limitOfset ...int) (*[]PresentedUserData, error)
+	GetUserByPolis(polis string) (*PresentedUserData, error)
 }
 
 type service struct{}
 
-func (s *service) AddUserByID(data MainUserData) (int, error) {
+func (s *service) AddUser(data MainUserData) (int64, error) {
 	db := database.Get_db()
 	defer db.Close()
 	if s.CheckUserExist(data) {
@@ -45,7 +46,7 @@ func (s *service) AddUserByID(data MainUserData) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return int(id), nil
+	return id, nil
 }
 
 func (s *service) CheckUserExist(data MainUserData) bool {
@@ -54,7 +55,7 @@ func (s *service) CheckUserExist(data MainUserData) bool {
 	return len(*result) != 0
 }
 
-func (*service) GetUserById(id int) (*PresentedUserData, error) {
+func (*service) GetUserById(id int64) (*PresentedUserData, error) {
 	db := database.Get_db()
 	defer db.Close()
 
@@ -93,6 +94,15 @@ func (*service) GetAllUsers(whreCase string, limitOfset ...int) (*[]PresentedUse
 		usersData = append(usersData, *userData)
 	}
 	return &usersData, nil
+}
+
+func (s *service) GetUserByPolis(polis string) (*PresentedUserData, error) {
+	whereCase := fmt.Sprintf(`polis = "%s"`, polis)
+	result, err := s.GetAllUsers(whereCase, 1)
+	if err != nil {
+		return nil, err
+	}
+	return &((*result)[0]), nil
 }
 
 func GetServise() Service {

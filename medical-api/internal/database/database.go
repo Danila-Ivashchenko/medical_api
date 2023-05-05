@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	db_host = "localhost:3036"
+	db_host = "localhost:3306"
 	db_name = "medical_db"
 	db_user = "root"
 	db_pass = "qwer"

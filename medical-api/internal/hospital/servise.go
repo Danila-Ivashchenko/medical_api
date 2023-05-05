@@ -22,27 +22,27 @@ func presentedHospitalDataFromRow(row rowScaner) (*PresentedHospitalData, error)
 }
 
 type Service interface {
-	AddHospital(data MainHospitalData) (int, error)
-	GetHospitalById(id int) (*PresentedHospitalData, error)
+	AddHospital(data MainHospitalData) (int64, error)
+	GetHospitalById(id int64) (*PresentedHospitalData, error)
 	GetAllHospitals(whreCase string, limitOfset ...int) (*[]PresentedHospitalData, error)
 }
 
 type service struct{}
 
 func (s *service) CheckHospitalExist(data MainHospitalData) bool {
-	whereCase := fmt.Sprintf(`name = "%s" OR (lon = %g AND lat = %g)`, data.Name, data.Lon, data.Lat)
+	whereCase := fmt.Sprintf(`name = "%s" OR (lon = %g AND lat = %g AND (lon <> 0 AND lat <> 0))`, data.Name, data.Lon, data.Lat)
 	result, _ := s.GetAllHospitals(whereCase, 1)
 	return len(*result) != 0
 }
 
-func (s *service) AddHospital(data MainHospitalData) (int, error) {
+func (s *service) AddHospital(data MainHospitalData) (int64, error) {
 	db := database.Get_db()
 	defer db.Close()
 	if s.CheckHospitalExist(data) {
 		return -1, &ExistError{}
 	}
 	stmt := fmt.Sprintf("INSERT INTO hospital (name, city, address, phone, email, lon, lat) VALUES (%s)", data.ToString())
-	fmt.Println(stmt)
+
 	result, err := db.Exec(stmt)
 	if err != nil {
 		return -1, err
@@ -51,14 +51,14 @@ func (s *service) AddHospital(data MainHospitalData) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return int(id), nil
+	return id, nil
 }
 
-func (*service) GetHospitalById(id int) (*PresentedHospitalData, error) {
+func (*service) GetHospitalById(id int64) (*PresentedHospitalData, error) {
 	db := database.Get_db()
 	defer db.Close()
 
-	stmt := fmt.Sprintf("SELECT * FROM hospotal WHERE id=%d", id)
+	stmt := fmt.Sprintf("SELECT * FROM hospital WHERE id=%d", id)
 	row := db.QueryRow(stmt)
 	return presentedHospitalDataFromRow(row)
 }
@@ -92,6 +92,7 @@ func (*service) GetAllHospitals(whreCase string, limitOfset ...int) (*[]Presente
 		}
 		hospitalsData = append(hospitalsData, *hospitalData)
 	}
+	fmt.Println(hospitalsData)
 	return &hospitalsData, nil
 }
 

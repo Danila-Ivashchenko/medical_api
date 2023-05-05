@@ -26,3 +26,18 @@ type PresentedUserData struct {
 func (m *PresentedUserData) ToString() string {
 	return fmt.Sprintf("'%d','%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'", m.Id, m.Name, m.Surname, m.Patronymic, m.Polis, m.Phone, m.Email, m.City, m.Address, m.Birthday)
 }
+
+func PresentedUserDataFromMain(id int64, data MainUserData) PresentedUserData {
+	pdata := PresentedUserData{}
+	pdata.Id = id
+	pdata.Name = data.Name
+	pdata.Surname = data.Surname
+	pdata.Patronymic = data.Patronymic
+	pdata.Polis = data.Polis
+	pdata.Phone = data.Phone
+	pdata.Email = data.Email
+	pdata.City = data.City
+	pdata.Address = data.Address
+	pdata.Birthday = data.Birthday
+	return pdata
+}
